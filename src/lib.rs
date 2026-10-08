@@ -758,13 +758,13 @@ pub const EMPTY_HEADER: Header<'static> = Header { name: "", value: b"" };
 pub fn parse_version(bytes: &mut Bytes) -> Result<u8> {
     if let Some(eight) = bytes.peek_n::<[u8; 8]>(8) {
         // NOTE: should be const once MSRV >= 1.44
-        let h10: u64 = u64::from_ne_bytes(*b"HTTP/1.0");
-        let h11: u64 = u64::from_ne_bytes(*b"HTTP/1.1");
+        let h10: u64 = u64::from_le_bytes(*b"HTTP/1.0");
+        let h11: u64 = u64::from_le_bytes(*b"HTTP/1.1");
         // SAFETY: peek_n(8) before ensure within bounds
         unsafe {
             bytes.advance(8);
         }
-        let block = u64::from_ne_bytes(eight);
+        let block = u64::from_le_bytes(eight);
         // NOTE: should be match once h10 & h11 are consts
         return if block == h10 {
             Ok(Status::Complete(0))

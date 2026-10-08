@@ -103,7 +103,7 @@ fn match_block(f: impl Fn(u8) -> bool, block: ByteBlock) -> usize {
     BLOCK_SIZE
 }
 
-// A const alternative to u64::from_ne_bytes to avoid bumping MSRV (1.36 => 1.44)
+// A const alternative to u64::from_le_bytes to avoid bumping MSRV (1.36 => 1.44)
 // creates a u64 whose bytes are each equal to b
 const fn uniform_block(b: u8) -> usize {
     (b as u64 *  0x01_01_01_01_01_01_01_01 /* [1_u8; 8] */) as usize
@@ -124,7 +124,7 @@ fn match_uri_char_8_swar(block: ByteBlock) -> usize {
     // uniform block full of 128.
     const M128: usize = uniform_block(128);
 
-    let x = usize::from_ne_bytes(block); // Really just a transmute
+    let x = usize::from_le_bytes(block); // Really just a transmute
     let lt = x.wrapping_sub(BM) & !x; // <= m
 
     let xor_del = x ^ DEL;
@@ -148,7 +148,7 @@ fn match_header_value_char_8_swar(block: ByteBlock) -> usize {
     // uniform block full of 128.
     const M128: usize = uniform_block(128);
 
-    let x = usize::from_ne_bytes(block); // Really just a transmute
+    let x = usize::from_le_bytes(block); // Really just a transmute
     let lt = x.wrapping_sub(BM) & !x; // <= m
 
     let xor_del = x ^ DEL;
@@ -167,7 +167,7 @@ fn offsetnz(block: usize) -> usize {
     }
 
     // perf: rust will unroll this loop
-    for (i, b) in block.to_ne_bytes().iter().copied().enumerate() {
+    for (i, b) in block.to_le_bytes().iter().copied().enumerate() {
         if b != 0 {
             return i;
         }
@@ -229,7 +229,7 @@ fn test_offsetnz() {
     for i in 0..BLOCK_SIZE {
         let mut seq = seq;
         seq[i] = 1;
-        let x = usize::from_ne_bytes(seq);
+        let x = usize::from_le_bytes(seq);
         assert_eq!(offsetnz(x), i);
     }
 }

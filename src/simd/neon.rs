@@ -171,7 +171,7 @@ unsafe fn offsetnz(x: uint8x16_t) -> u32 {
     fn clz(x: u64) -> u32 {
         // perf: rust will unroll this loop
         // and it's much faster than rbit + clz so voila
-        for (i, b) in x.to_ne_bytes().iter().copied().enumerate() {
+        for (i, b) in x.to_le_bytes().iter().copied().enumerate() {
             if b != 0 {
                 return i as u32;
             }
